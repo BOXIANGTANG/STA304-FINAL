@@ -1,6 +1,10 @@
 ---
 title: "Sex Equality in the United States"
-author: "Boxiang Tang(5475)"
+author: | 
+      | Boxiang Tang (ID: 1006485475)
+      |
+      | report and codes are available at:
+      | https://github.com/BOXIANGTANG/STA304-FINAL
 date: "20/12/2020"
 output:
   pdf_document:
@@ -34,7 +38,6 @@ final_data <- final_data %>% na.omit() #Ignore the data points which contain "NA
 rm(cleaned_data) #remove the cleaned data
 ```
 
-<P ALIGN=LEFT>**Link to a Github repository: https://github.com/BOXIANGTANG/STA304-FINAL**</P>
 
 ## Abstract
 
@@ -45,7 +48,7 @@ rm(cleaned_data) #remove the cleaned data
 
 ## Keywords
 
-<P ALIGN=LEFT>**sex equality, standard modeling approach, propensity score matching, causal inference, probability of being employes, probability of stucking in the poverty, expected income**</P>
+<P ALIGN=LEFT>**sex equality, standard modeling approach, propensity score matching, causal inference, probability of being employed, probability of stucking in the poverty, expected income**</P>
 
 ## Introduction
   
@@ -89,7 +92,9 @@ table_1 #show the new generated table
 ```
 
 
-<P ALIGN=LEFT>This report is based on the latest IPUMS data(2019), which is a census records collected by the interdisciplinary research center at the University of Minnesota. Because it is a cencus data, we may treat our used database is unbiased and representative.</P>
+<P ALIGN=LEFT>This report is based on the latest IPUMS data(2019), which is a census records collected by the interdisciplinary research center at the University of Minnesota. Because it is a cencus data, we may treat our used database is unbiased and representative.The only drawback for this dataset is that its sizs is too large, thus needs our equipments to have strong computing power. </P>
+
+<P ALIGN=LEFT>However, our equipment doesnot meet that requiremnet, thus we cannot apply the original large dataset in our model (especially when doing propensity score matching). We would need to use SRS method (simple random sampling) to randomly extracted data points for our subsequent analysis. The SRS is done by simply applying the "sample()" function in R. Therefore, our population would be all American citizens, our sampling frame would be the original large dataset, and our sample would be those randomly selected people. The final decided simple size is 10000, simply because it is very equipment-friendly and large enough for us to generate representative results.</P>
 
 
 #### 1. General:
@@ -283,7 +288,7 @@ Levels (poverty status)|$x_{i.p}$|
 Note that sex is not a normal treatment that could be contolled or not. Our purpose here is to study whether sexism exists in real life from a statistical perspective. Therefore some values we calculated such as propensity score here does not have any practical meanings, we just use it as a statistical tool for organizing data.</P>
 
 
-<P ALIGN=LEFT>After the propensity score calculations for each data point, we will match the data from the treated group (“Male” group) to the data from the controlled group (“Female” group) by comparing if their propensity scores are the closest to each other. Finally we would reduce our dataset by only keeping the data points that are properly matched. This would be the end of the whole propensity score matching approach, for the next step, we will use the organized new dataset to repeat the ordinary modeling method again to see whether the results are consistent with those obtained by previous technique (directly applying ordinary modeling method).</P>
+<P ALIGN=LEFT>After the propensity score calculations for each data point, we will match the data from the treated group (“Male” group) to the data from the controlled group (“Female” group) by comparing if their propensity scores are the closest to each other. Finally we would reduce our dataset by only keeping the data points that are properly matched. This would be the end of the whole propensity score matching approach, for the next step, we will use the organized new dataset to repeat the ordinary modeling method again to see whether the results are consistent with those obtained by previous technique (directly applying ordinary modeling method). Note, all the previous mentioned processes would be done by running software: R. </P>
 
 
 <P ALIGN=LEFT>Notice that, because of the equipment limitations, in order to run the propensity sore matching codes successfully, we have to reduce the dataset to a equipment-friendly size. Therefore, all of the results that appear in the Result section are calculated based on 10000 randomly selected data points which comes from the original large data set.</P>
@@ -352,8 +357,27 @@ line_model_2 <- lm(incwage~as.factor(sex)+as.factor(educ)+as.factor(race)+age,da
 summary(line_model_2) #get the summary output of the linear model
 ```
 
+#### 3. Evaluation of Models & Potential Aternative Modeling Methods:
 
-#### 3. Model Diagnostic:
+Models|AIC Values|
+------|----------|
+**sd method logi(employed)**|2276.3|
+**ps method logi(employed)**|2193.5|
+**sd method logi(poverty)**|3671|
+**ps method logi(poverty)**|3646.6|
+
+
+Models|Adjusted R square Values|
+------|------------------------|
+**sd method line(income)**|0.1969|
+**ps method line(income)**|0.212|
+
+<P ALIGN=LEFT>Both the Akaike information criterion (AIC) values and adjusted R square values are mathmetical indicators for evaluating how well the model fits the given data. To make the model more proper for a given dataset we would always prefer lower AIC values or higher adjusted R square values. By the previous tables, we could see that the data which has been matched by propensity score makes our chosen models perform even better. (i.e the AIC values of logistic models have decreased, and the adjusted R square values of linear model have increaded)</P>
+
+<P ALIGN=LEFT>Except the ordinary logistic or linear models, actually we could also apply Baysian regression models for this study. By this approach we could use our owned knowledge and information about the data to provid it a proper prior. Also, this approach gives us inferences which are conditional on the data and are exact. In addition, it not only obeys the likelihood principle, but also provides interpretable results. However, in order to apply Baysian approach properly, we have to select a appropriate prior which requires us to have a good understanding of the dataset, but usually we do not have that much information about the data we wish to use. That would be the most difficult point for us to use it in this study.</P>
+
+
+#### 4. Model Diagnostic:
 ```{r,include=FALSE, warning=FALSE, message=FALSE}
 #install.packages("car") #install car packages
 library(car) #upload car
@@ -492,7 +516,7 @@ data_frame_new <- data.frame(sex, poverty, not_poverty, lower_than_avin, greater
 
 ```{r,echo=FALSE,message=FALSE,warning=FALSE}
 library(scales) #upload scales
-par(mfrow = c(3,1)) #Divide the white space into 3 parts (1x3)
+par(mfrow = c(1,3)) #Divide the white space into 3 parts (1x3)
 ggplot(data_frame_new, aes(x="", y=poverty, fill=sex))+
        geom_bar(width=1, stat="identity", color="black")+
        geom_text(y=poverty/2+c(0,cumsum(poverty)[-length(poverty)]),
@@ -546,24 +570,92 @@ ggplot(data_frame_new, aes(x="", y=employed, fill=sex))+
 
 
 
+
 ## Discussion
+
+
+
+```{r,echo=FALSE,warning=FALSE,message=FALSE}
+table1::label(final_data_matched$race) <- "Race" #set "Race" to be the label of race variable in the table
+table1::label(final_data_matched$empstat) <- "Employment Status" #set "Employment Status" to be the label of empstat variable in the table
+table1::label(final_data_matched$educ) <- "Education Level" #set "Education Level" to be the label of educ variable in the table
+table1::label(final_data_matched$incwage) <- "Wage and Salary Income" #set "Wge and Salary Income" to be the label of incwage variable in the table
+table1::label(final_data_matched$poverty) <- "Poverty" #set "Poverty" to be the label of poverty variable in the table
+table1::label(final_data_matched$age) <- "Age" #set "Age" to be the label of age variable in the table
+table1::label(final_data_matched$poverty_status) <- "Poverty_Status" #set "Poverty_Status" to be the label of poverty_status in the table
+table1::label(final_data_matched$.fitted) <- "Propensity_Scores" #set "Propensity_Scores" to be the label of propensity scores in the table
+
+table_2 <-table1::table1(~race+empstat+educ+incwage+poverty+age+poverty_status+.fitted|sex, final_data_matched) #Draw the table1 by given dataset
+table_2 <- table_2 %>% read_html(table_2) #read in the content from the html table
+table_2 <- table_2 %>% html_table() #parse the html table into a data frame
+table_2 <- table_2 %>% knitr::kable(caption="Summary of Used Data") #generate a new table with the data frame from the original html table
+table_2 #show the new generated table 
+```
+
 
 ### i. Summary:
 
 <P ALIGN=LEFT>This analysis aims to study about the current situation of  sex equality in the United States. To yield the result as representative as possible, the whole study has been based on the latest 2019 IPUMS cencus data. For generating a stronger causal inference, we not only apply the standard model regression approach, but also perform a propensity score matching regression technique by using sex as a "treatment".  By this way, the randomness of the distribution of sex variable could be ensured, also we could see more clearly that how the difference in sex variable could cause a change in the result  of the probability of being employed, the probability of stucking in poverty and the expected income values. Both the logistic regression model and mutiple linear regression model are used to estiamte those three response variables. The chosen predictors of this analysis are race, age and the education levels. Furthermore, ideally all of those processes should be done by using the orginal large data set, however, because of the equipment limitation, for simplicity, the whole study actually is only based on 10000 data points which are randomly selected from the original dataset.</P>
 
 
-### ii. Conlusion:
 
-<P ALIGN=LEFT>Recall that, in the Result section, we have concluded that although both the male and the female hold the same probability of being employed, because of the unfair wage distribution after the recruitments, women are still much more likely to stuck into the poverty than men. The provided tables and graphs even further strengthed the previous statements. Therefore, we may say that for eliminating the sex discriminations, the United States did make a huge progress on offering equal job opportunities for both sexes; however, the remaining sexism on the salary allocations are still holding back the improvement of American women's living standards. This conclusion may also be applicable to the other countries, in addtion to only focus on emphasising the equality of work chances between two sexes, maybe we should also pay close attention to limit the "sex wage gap". Thus not only equal chance for getting work, but also equal pay for the equal work.</P>   
+### ii. Summary of Used Data:
+
+<P ALIGN=LEFT>Here, the table shows a brief summary of our used dataset in the whole study. Recall that it is randomly select from our original census data (i.e IPUMS 2019 Census Data), and its size is 10000. Because it is randomly extracted from the census data (i.e by R function "sample()")and its size is quite large, we may reasonably treat it as an unbiased and representative dataset. However, compare to the size of the original dataset, it is relatively much smaller, thus it could be less representative than the larger one.</P> 
+
+<P ALIGN=LEFT>Compare with the previous data table, for categorical variables, the percentages of each level all have some changes, but the relative sizes are approximately consistent. Nevertheless, the "employment status" variable has a very obvious change, note here both "n/a" and "not in labour force" levels become 0, this is caused by our previous data cleaning processes. For the numerical variable, similiarly the values of mean and median are all different from before, but our previous mentioned relationships between those values of two sexes still holds. Notice, there are two extra variables in this smaller dataset - "Poverty_Status" and "Propensity_Scores" (note that the "Poverty Status"  in the previous table has been changed to "Poverty"  here). Those were added to the dataset in the modeling section. "Poverty_Status" shows the proportion of people who are suffering from the poverty and those who are not for both sexes. Clearly, we could see that women are more likely to be in poverty than men. Previously when we generating causal inference, we have used "sex" variable as a treatment, hence the "Propensity_Scores" here actually doesnot have any practical meaning, it is just an indicator value of showing how well two data points match.1</P>
+
+<P ALIGN=LEFT>Generally speaking, although there are some differences between our used dataset and the orginal large datatset, most of the important data information such as relative size or correlations is still consistent. Also, becuase we get those data by SRS (Simple Random Sampling) process, in theory this dataset could be considered representative and unbiased. (However, note that actually bias could occur because of the data cleaning) Therefore, our results based on this dataset could be considered representative as well, thus the strengths of our conclusions could also be ensured.</P>
 
 
-### iii. Weakness:
+
+
+### iii. Conlusion:
+
+#### Information Tables from Previous Pie Chart:
+
+**Sexes**|**Proportion of Being Employed**|
+---------|--------------------------------|
+**Male**|49.86%|
+**Female**|50.14%|
+
+
+**Sexes**|**Proportion of Income Lower than The Average Values**|
+---------|------------------------------------------------------|
+**Male**|45%|
+**Female**|55%|
+
+
+**Sexes**|**Proportion of Stucking in The Poverty**|
+---------|-----------------------------------------|
+**Male**|42%|
+**Female**|58%|
+
+
+#### Information Tables from Previous Scatter Plot:
+
+**Slope Difference**|**Relatived P-Value**|
+--------------------|---------------------|
+144.41|$2.83*10^{-13}$|
+
+
+```{r, include=FALSE}
+model_line_slope <- lm(incwage ~ age + age:sex, data=final_data_matched) #Create a linear model with an interaction term (intercepts are the same, but slopes are different for both sexes)
+summary(model_line_slope) #get the summary output to find the slope difference
+```
+
+
+<P ALIGN=LEFT>Recall that, in the Result section, we have concluded that although both the male and the female hold the same probability of being employed, because of the unfair wage distribution after the recruitments, women are still much more likely to stuck into the poverty than men. The provided tables and graphs even further strengthed the previous statements. Notice here, in order to prove that there is a gap between men's and women's salaries, we have built a linear model which contains an interaction term with sex variables, the meaning of this term is that the relationship between income and age are dependent on the sex variable. The results show that our previous assumption about the slope difference does hold, and that difference is very statistically significant (very small p-value). Thus, we further prove the existence of the sexism on the wages ditribution, and the that wage gap cause by sex difference are approximatly 144 dollars for each unit age increase.</P> 
+
+<P ALIGN=LEFT>Therefore, we may say that for eliminating the sex discriminations, the United States did make a huge progress on offering equal job opportunities for both sexes; however, the remaining sexism on the salary allocations are still holding back the improvement of American women's living standards. This conclusion may also be applicable to the other countries, in addtion to only focus on emphasising the equality of work chances between two sexes, maybe we should also pay close attention to limit the "sex wage gap". Thus not only equal chance for getting work, but also equal pay for the equal work.</P>   
+
+
+### iv. Weakness:
 
 <P ALIGN=LEFT>Nevertheless, there are a couple of weaknesses in this study. Firstly, as prviously mentioned, for simplicity, we only partially use the original unbiased dataset, and the size of our used data points are much smaller compare to the original one. Thus the final results may not be representative which means our conclusions may considerably differ from the reality. Secondly, about the estimate object: the probability of being employed, probably we need to calculate this ratio based on the employment status of an identical job, that would be more consistent with the "equal working opportunity" topic. But the chosen data was lack in the information of job identities, therefore maybe our analysis on that topic is biased. In addition, notice that in the "model diagnostic" part, we have only checked the multicollinearity, however, there are so many dimensions for checking the validities of the model, and testing on only one aspect is far from enough. It is possible that our models will fail the other tests, hence our inferences based on those model could be invaild as well. Finally, most of our predictors are categorical, thus the analysis (espcially th graph analysis) we can do is quite limited, which would cause our study to be less profound.</P>
 
 
-### iV. Next Steps:
+### v. Next Steps:
 
 <P ALIGN=LEFT>For further improving this analysis, first we could use a computer with mcuh stronger computation powers and repeat the study again. By this way the equipment limitation will be solved, therefore we could do the analysis based on the original large dataset, and make our resluts much more representative. Second, to make our calculation more consistent with the study topic, we may also need to find another data frame that not only contains the information of our estiamte objects and chosen predictors, but also includs the certain job's identities, and then we could repeat our analysis again based on that dataset. Furthermore, more dimensions will be covered when diagnosing models. For linear models we could check whether the Gauss-Markov assumptions hold or not by using diagnostic plots, for logistic model we could reform the models and check its AIC OR BIC values to find the best fitted models for the given dataset. Last but not the least, more reasonable numerical predictors should be added into the models for drawing more valuable graphs, thus based on those extra provided assets we could significantly increase the deepness of our study.</P>
 
