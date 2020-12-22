@@ -34,6 +34,8 @@ final_data <- final_data %>% na.omit() #Ignore the data points which contain "NA
 rm(cleaned_data) #remove the cleaned data
 ```
 
+<P ALIGN=LEFT>**Link to a Github repository: https://github.com/BOXIANGTANG/STA304-FINAL**</P>
+
 ## Abstract
 
 <P ALIGN=LEFT>**(Note: In order to follow the given instructions and make this report less compelling to the readers, I have replaced all of the "I" and "my" with "we" and "our", however, this work is an independent work, not a group work.)**</P>
